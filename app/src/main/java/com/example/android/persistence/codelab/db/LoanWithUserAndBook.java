@@ -19,6 +19,8 @@ package com.example.android.persistence.codelab.db;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.TypeConverters;
 
+import com.example.android.persistence.codelab.db.DateConverter;
+
 import java.util.Date;
 
 public class LoanWithUserAndBook {

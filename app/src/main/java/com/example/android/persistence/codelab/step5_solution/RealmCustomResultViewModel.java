@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.persistence.codelab.step5;
+package com.example.android.persistence.codelab.step5_solution;
 
 import android.app.Application;
 import android.arch.core.util.Function;
@@ -22,25 +22,30 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Transformations;
 
-import com.example.android.persistence.codelab.db.AppDatabase;
-import com.example.android.persistence.codelab.db.LoanWithUserAndBook;
-import com.example.android.persistence.codelab.db.utils.DatabaseInitializer;
+import com.example.android.persistence.codelab.realmdb.Loan;
+import com.example.android.persistence.codelab.realmdb.RealmLocator;
+import com.example.android.persistence.codelab.realmdb.utils.DatabaseInitializer;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
+import io.realm.Realm;
+import io.realm.RealmList;
 
-public class CustomResultViewModel extends AndroidViewModel {
+import static com.example.android.persistence.codelab.realmdb.utils.RealmUtils.loanModel;
+
+
+public class RealmCustomResultViewModel extends AndroidViewModel {
 
     private LiveData<String> mLoansResult;
 
-    private AppDatabase mDb;
+    private Realm mDb;
 
-    public CustomResultViewModel(Application application) {
+    public RealmCustomResultViewModel(Application application) {
         super(application);
+
     }
 
     public LiveData<String> getLoansResult() {
@@ -48,7 +53,7 @@ public class CustomResultViewModel extends AndroidViewModel {
     }
 
     public void createDb() {
-        mDb = AppDatabase.getInMemoryDatabase(getApplication());
+        mDb = RealmLocator.getInMemoryDatabase();
 
         // Populate it with initial data
         DatabaseInitializer.populateAsync(mDb);
@@ -58,33 +63,37 @@ public class CustomResultViewModel extends AndroidViewModel {
     }
 
     private void subscribeToDbChanges() {
-        // TODO: Modify this query to show only recent loans from specific user
-        LiveData<List<LoanWithUserAndBook>> loans
-                = mDb.loanModel().findAllWithUserAndBook();
+        LiveData<RealmList<Loan>> loans
+                = loanModel(mDb).findLoansByNameAfter("Mike", getYesterdayDate());
 
         // Instead of exposing the list of Loans, we can apply a transformation and expose Strings.
         mLoansResult = Transformations.map(loans,
-                new Function<List<LoanWithUserAndBook>, String>() {
+                new Function<RealmList<Loan>, String>() {
             @Override
-            public String apply(List<LoanWithUserAndBook> loansWithUserAndBook) {
+            public String apply(RealmList<Loan> loans) {
                 StringBuilder sb = new StringBuilder();
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm",
                         Locale.US);
 
-                for (LoanWithUserAndBook loan : loansWithUserAndBook) {
+                for (Loan loan : loans) {
                     sb.append(String.format("%s\n  (Returned: %s)\n",
-                            loan.bookTitle,
-                            simpleDateFormat.format(loan.endTime)));
+                            loan.getBook().getTitle(),
+                            simpleDateFormat.format(loan.getEndTime())));
                 }
                 return sb.toString();
             }
         });
     }
 
-    @SuppressWarnings("unused")
     private Date getYesterdayDate() {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.DATE, -1);
         return calendar.getTime();
+    }
+
+    @Override
+    protected void onCleared() {
+        RealmLocator.destroyInstance();
+        super.onCleared();
     }
 }

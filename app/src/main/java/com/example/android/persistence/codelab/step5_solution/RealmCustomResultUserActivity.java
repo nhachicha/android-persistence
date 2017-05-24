@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package com.example.android.persistence.codelab.step5;
+package com.example.android.persistence.codelab.step5_solution;
 
+import android.arch.lifecycle.LifecycleActivity;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.TextView;
 
-import android.arch.lifecycle.LifecycleActivity;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import com.example.android.codelabs.persistence.R;
 
 
-public class CustomResultActivity extends LifecycleActivity {
+public class RealmCustomResultUserActivity extends LifecycleActivity {
 
-    private CustomResultViewModel mShowUserViewModel;
+    private RealmCustomResultViewModel mShowUserViewModel;
 
     private TextView mBooksTextView;
 
@@ -40,7 +40,7 @@ public class CustomResultActivity extends LifecycleActivity {
         setContentView(R.layout.db_activity);
         mBooksTextView = (TextView) findViewById(R.id.books_tv);
 
-        mShowUserViewModel = ViewModelProviders.of(this).get(CustomResultViewModel.class);
+        mShowUserViewModel = ViewModelProviders.of(this).get(RealmCustomResultViewModel.class);
 
         populateDb();
 
