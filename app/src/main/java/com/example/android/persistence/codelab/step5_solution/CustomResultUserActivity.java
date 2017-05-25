@@ -27,31 +27,22 @@ import android.widget.TextView;
 import com.example.android.codelabs.persistence.R;
 
 
-public class RealmCustomResultUserActivity extends LifecycleActivity {
+public class CustomResultUserActivity extends LifecycleActivity {
 
-    private RealmCustomResultViewModel mShowUserViewModel;
-
+    private CustomResultViewModel mShowUserViewModel;
     private TextView mBooksTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.db_activity);
         mBooksTextView = (TextView) findViewById(R.id.books_tv);
 
-        mShowUserViewModel = ViewModelProviders.of(this).get(RealmCustomResultViewModel.class);
+        // Android will instantiate my ViewModel for me, and the best part is
+        // the viewModel will survive configurationChanges!
+        mShowUserViewModel = ViewModelProviders.of(this).get(CustomResultViewModel.class);
 
-        populateDb();
-
-        subscribeUiLoans();
-    }
-
-    private void populateDb() {
-        mShowUserViewModel.createDb();
-    }
-
-    private void subscribeUiLoans() {
+        // We'll observe updates to our LiveData loan string.
         mShowUserViewModel.getLoansResult().observe(this, new Observer<String>() {
             @Override
             public void onChanged(@Nullable final String result) {
@@ -61,7 +52,6 @@ public class RealmCustomResultUserActivity extends LifecycleActivity {
     }
 
     public void onRefreshBtClicked(View view) {
-        populateDb();
-        subscribeUiLoans();
+        mShowUserViewModel.simulateDataUpdates();
     }
 }

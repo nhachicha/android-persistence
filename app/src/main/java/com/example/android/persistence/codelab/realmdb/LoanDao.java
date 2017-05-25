@@ -17,46 +17,33 @@
 package com.example.android.persistence.codelab.realmdb;
 
 
-import android.arch.lifecycle.LiveData;
-
-import com.example.android.persistence.codelab.realmdb.utils.RealmLiveData;
-
 import java.util.Date;
 
 import io.realm.Realm;
-import io.realm.RealmList;
+import io.realm.RealmResults;
 
-public class LoanDao extends RealmDao {
+public class LoanDao  {
 
-    public LoanDao(Realm realm) { super(realm); }
+    private Realm mRealm;
 
-    public LiveData<RealmList<Loan>> findLoansByNameAfter(String userName, Date after) {
-        return new RealmLiveData<>(realm
+    public LoanDao(Realm realm) { this.mRealm = realm; }
+
+    public RealmResults<Loan> findLoansByNameAfter(String userName, Date after) {
+        return mRealm
                 .where(Loan.class)
                 .like("user.name", userName)
                 .greaterThan("endTime", after)
-                .findAll());
+                .findAllAsync();
     }
 
-    public LiveData<RealmList<Loan>> findAllLoans() {
-        return new RealmLiveData<>(realm.where(Book.class).findAll());
+    public RealmResults<Loan> findAllLoans() {
+        return mRealm.where(Loan.class).findAllAsync();
     }
 
     public void addLoan(final Date from, final Date to, final String userId, final String bookId) {
-        realm.executeTransactionAsync(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                User user = realm.where(User.class).equalTo("id", userId).findFirst();
-                Book book = realm.where(Book.class).equalTo("id", bookId).findFirst();
-                Loan loan = new Loan(from, to, book, user);
-                realm.copyFromRealm(loan);
-                book.getLoans().add(loan);
-                user.getLoans().add(loan);
-            }
-        });
-    }
-
-    void deleteAll() {
-        realm.delete(Book.class);
+        User user = mRealm.where(User.class).equalTo("id", userId).findFirst();
+        Book book = mRealm.where(Book.class).equalTo("id", bookId).findFirst();
+        Loan loan = new Loan(from, to, book, user);
+        mRealm.copyToRealm(loan);
     }
 }

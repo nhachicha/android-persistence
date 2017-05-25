@@ -38,6 +38,8 @@ public class Loan implements RealmModel {
         this.user = user;
     }
 
+    // getter / setter
+
     public Date getStartTime() {
         return startTime;
     }

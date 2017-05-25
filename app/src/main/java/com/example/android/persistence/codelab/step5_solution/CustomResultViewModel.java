@@ -17,13 +17,14 @@
 package com.example.android.persistence.codelab.step5_solution;
 
 import android.app.Application;
-import android.arch.core.util.Function;
 import android.arch.lifecycle.AndroidViewModel;
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Transformations;
+import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.OnLifecycleEvent;
 
 import com.example.android.persistence.codelab.realmdb.Loan;
-import com.example.android.persistence.codelab.realmdb.RealmLocator;
 import com.example.android.persistence.codelab.realmdb.utils.DatabaseInitializer;
 
 import java.text.SimpleDateFormat;
@@ -31,46 +32,45 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import io.realm.OrderedCollectionChangeSet;
+import io.realm.OrderedRealmCollectionChangeListener;
 import io.realm.Realm;
-import io.realm.RealmList;
+import io.realm.RealmResults;
 
 import static com.example.android.persistence.codelab.realmdb.utils.RealmUtils.loanModel;
 
 
-public class RealmCustomResultViewModel extends AndroidViewModel {
+public class CustomResultViewModel extends AndroidViewModel {
 
-    private LiveData<String> mLoansResult;
+    private MutableLiveData<String> mLoansResult;
+    private RealmResults<Loan> mLoansModel;
 
     private Realm mDb;
 
-    public RealmCustomResultViewModel(Application application) {
+    public CustomResultViewModel(Application application) {
         super(application);
 
+        mDb = Realm.getDefaultInstance();
+        mLoansResult = new MutableLiveData<>();
+        mLoansModel = loanModel(mDb).findLoansByNameAfter("Mike", getYesterdayDate());
+        subscribeToDbChanges();
+
+        simulateDataUpdates();
+    }
+
+    public void simulateDataUpdates() {
+        DatabaseInitializer.populateAsync(mDb);
     }
 
     public LiveData<String> getLoansResult() {
         return mLoansResult;
     }
 
-    public void createDb() {
-        mDb = RealmLocator.getInMemoryDatabase();
-
-        // Populate it with initial data
-        DatabaseInitializer.populateAsync(mDb);
-
-        // Receive changes
-        subscribeToDbChanges();
-    }
-
     private void subscribeToDbChanges() {
-        LiveData<RealmList<Loan>> loans
-                = loanModel(mDb).findLoansByNameAfter("Mike", getYesterdayDate());
 
-        // Instead of exposing the list of Loans, we can apply a transformation and expose Strings.
-        mLoansResult = Transformations.map(loans,
-                new Function<RealmList<Loan>, String>() {
+        mLoansModel.addChangeListener(new OrderedRealmCollectionChangeListener<RealmResults<Loan>>() {
             @Override
-            public String apply(RealmList<Loan> loans) {
+            public void onChange(RealmResults<Loan> loans, OrderedCollectionChangeSet orderedCollectionChangeSet) {
                 StringBuilder sb = new StringBuilder();
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm",
                         Locale.US);
@@ -80,20 +80,27 @@ public class RealmCustomResultViewModel extends AndroidViewModel {
                             loan.getBook().getTitle(),
                             simpleDateFormat.format(loan.getEndTime())));
                 }
-                return sb.toString();
+                mLoansResult.setValue(sb.toString());
             }
         });
+    }
+
+    /**
+     * This method will be called when this ViewModel is no longer used and will be destroyed.
+     * <p>
+     * It is useful when ViewModel observes some data and you need to clear this subscription to
+     * prevent a leak of this ViewModel... Like RealmResults and the instance of Realm!
+     */
+    @Override
+    protected void onCleared() {
+        mLoansModel.removeAllChangeListeners();
+        mDb.close();
+        super.onCleared();
     }
 
     private Date getYesterdayDate() {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.DATE, -1);
         return calendar.getTime();
-    }
-
-    @Override
-    protected void onCleared() {
-        RealmLocator.destroyInstance();
-        super.onCleared();
     }
 }

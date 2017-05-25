@@ -16,16 +16,16 @@
 
 package com.example.android.persistence.codelab.realmdb;
 
-import android.arch.persistence.room.PrimaryKey;
-
 import io.realm.RealmList;
 import io.realm.RealmModel;
+import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.RealmClass;
 
 @RealmClass
 public class User implements RealmModel {
 
-    private @PrimaryKey String id;
+    private @PrimaryKey
+    String id;
     private String name;
     private String lastName;
     private int age;

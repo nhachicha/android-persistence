@@ -42,27 +42,11 @@ public class UserDao extends RealmDao<UserDao> {
                 .findAll();
     }
 
-    public void insertUser(final User user) {
+    public User createOrUpdate(User user) {
         if (user != null) {
-            realm.executeTransactionAsync(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-                    if (realm.where(User.class).equalTo("id", user.getId()).count() == 0) ;
-                    realm.insert(user);
-                }
-            });
+            user = realm.copyToRealmOrUpdate(user);
         }
-    }
-
-    public void insertOrUpdateUsers(final User... users) {
-        if(users != null) {
-            realm.executeTransactionAsync(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-                    realm.insertOrUpdate(Arrays.asList(users));
-                }
-            });
-        }
+        return user;
     }
 
     public void deleteUserById(final String id) {

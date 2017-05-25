@@ -18,13 +18,12 @@ package com.example.android.persistence.codelab.realmdb;
 
 import android.arch.lifecycle.LiveData;
 
-import com.example.android.persistence.codelab.realmdb.utils.RealmLiveData;
-
 import java.util.Date;
-import java.util.List;
 
 import io.realm.Realm;
-import io.realm.RealmList;
+import io.realm.RealmResults;
+
+import static com.example.android.persistence.codelab.realmdb.utils.RealmUtils.asLiveData;
 
 
 public class BookDao extends RealmDao {
@@ -35,62 +34,46 @@ public class BookDao extends RealmDao {
         return realm.where(Book.class).equalTo("id", id).findFirst();
     }
 
-    public LiveData<RealmList<Book>> findBooksBorrowedByName(String userName) {
-        return new RealmLiveData<>(realm
+    public LiveData<RealmResults<Book>> findBooksBorrowedByName(String userName) {
+
+        return asLiveData(realm
                 .where(Book.class)
                 .like("loan.user.name", userName)
                 .findAll());
     }
 
-    public LiveData<List<Book>> findBooksBorrowedByNameAfter(String userName, Date after) {
-        return new RealmLiveData<>(realm
+    public LiveData<RealmResults<Book>> findBooksBorrowedByNameAfter(String userName, Date after) {
+        return asLiveData(realm
                 .where(Book.class)
                 .like("loan.user.name", userName)
                 .greaterThan("loan.endTime", after)
                 .findAll());
     }
 
-    public LiveData<List<Book>> findBooksBorrowedByUser(String userId) {
-        return new RealmLiveData<>(realm
+    public LiveData<RealmResults<Book>> findBooksBorrowedByUser(String userId) {
+        return asLiveData(realm
                 .where(Book.class)
                 .like("loan.user.id", userId)
                 .findAll());
     }
 
-    public LiveData<List<Book>> findBooksBorrowedByUserAfter(String userId, Date after) {
-        return new RealmLiveData<>(realm
+    public LiveData<RealmResults<Book>> findBooksBorrowedByUserAfter(String userId, Date after) {
+        return asLiveData(realm
                 .where(Book.class)
                 .like("loan.user.id", userId)
                 .greaterThan("loan.endTime", after)
                 .findAll());
     }
 
-    public LiveData<List<Book>> findAllBooks() {
-        return new RealmLiveData<>(realm.where(Book.class).findAll());
+    public LiveData<RealmResults<Book>> findAllBooks() {
+        return asLiveData(realm.where(Book.class).findAll());
     }
 
-    public void insertBook(final Book book) {
+    public Book createOrUpdate(Book book) {
         if (book != null) {
-            realm.executeTransactionAsync(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-                    if (realm.where(Book.class).equalTo("id", book.getId()).count() == 0) ;
-                    realm.insert(book);
-                }
-            });
+            book = realm.copyToRealmOrUpdate(book);
         }
+        return book;
     }
 
-    void createOrUpdateBook(final Book book) {
-        realm.executeTransactionAsync(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                realm.insertOrUpdate(book);
-            }
-        });
-    }
-
-    void deleteAll() {
-        realm.delete(Book.class);
-    }
 }

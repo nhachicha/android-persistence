@@ -27,6 +27,7 @@ import java.util.Date;
 import io.realm.Realm;
 
 import static com.example.android.persistence.codelab.realmdb.utils.RealmUtils.bookModel;
+import static com.example.android.persistence.codelab.realmdb.utils.RealmUtils.checkpoint;
 import static com.example.android.persistence.codelab.realmdb.utils.RealmUtils.loanModel;
 import static com.example.android.persistence.codelab.realmdb.utils.RealmUtils.userModel;
 
@@ -43,26 +44,29 @@ public class DatabaseInitializer {
 
     private static void addLoan(final Realm db,
                                 final User user, final Book book, Date from, Date to) {
-        loanModel(db).addLoan(from, to, book.getId(), user.getId());
+        loanModel(db).addLoan(from, to, user.getId(), book.getId());
+        checkpoint(db);
     }
 
     private static Book addBook(final Realm db, final String id, final String title) {
-        Book book = new Book(id, title);
-        bookModel(db).insertBook(book);
+        Book book = bookModel(db).createOrUpdate(new Book(id, title));
+        checkpoint(db);
         return book;
     }
 
     private static User addUser(final Realm db, final String id, final String name,
                                 final String lastName, final int age) {
-        User user = new User(id, name, lastName, age);
-        userModel(db).insertUser(user);
+        User user = userModel(db).createOrUpdate(new User(id, name, lastName, age));
+        checkpoint(db);
         return user;
     }
 
     private static Realm.Transaction populateWithTestDataTx = new Realm.Transaction() {
         @Override
         public void execute(Realm db) {
+
             db.deleteAll();
+            checkpoint(db);
 
             User user1 = addUser(db, "1", "Jason", "Seaver", 40);
             User user2 = addUser(db, "2", "Mike", "Seaver", 12);
