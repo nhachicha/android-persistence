@@ -27,7 +27,6 @@ import java.util.Date;
 import io.realm.Realm;
 
 import static com.example.android.persistence.codelab.realmdb.utils.RealmUtils.bookModel;
-import static com.example.android.persistence.codelab.realmdb.utils.RealmUtils.checkpoint;
 import static com.example.android.persistence.codelab.realmdb.utils.RealmUtils.loanModel;
 import static com.example.android.persistence.codelab.realmdb.utils.RealmUtils.userModel;
 
@@ -107,6 +106,16 @@ public class DatabaseInitializer {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.DATE, daysAgo);
         return calendar.getTime();
+    }
+
+    /**
+     * Commit the current transaction and start a new one.
+     * This works well for this demo to simulate new updates streaming into
+     * realm.  Not recommended for a real world app.
+     */
+    private static void checkpoint(Realm db) {
+        db.commitTransaction();
+        db.beginTransaction();
     }
 
 }

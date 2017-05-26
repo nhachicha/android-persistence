@@ -16,17 +16,25 @@
 
 package com.example.android.persistence.codelab.realmdb;
 
-import java.util.Arrays;
-
 import io.realm.Realm;
 import io.realm.RealmResults;
 
-public class UserDao extends RealmDao<UserDao> {
+public class UserDao {
 
-    public UserDao(Realm realm) {
-        super(realm);
+    private Realm realm;
+
+    public UserDao(Realm realm) { this.realm = realm; }
+
+    public User createOrUpdate(User user) {
+        if (user != null) {
+            user = realm.copyToRealmOrUpdate(user);
+        }
+        return user;
     }
 
+    /**
+     *  Additional example custom finder methods.  Unused by the app currently.
+     */
     public RealmResults<User> loadAllUsers() {
         return realm.where(User.class).findAll();
     }
@@ -41,35 +49,4 @@ public class UserDao extends RealmDao<UserDao> {
                 .equalTo("lastName", lastName)
                 .findAll();
     }
-
-    public User createOrUpdate(User user) {
-        if (user != null) {
-            user = realm.copyToRealmOrUpdate(user);
-        }
-        return user;
-    }
-
-    public void deleteUserById(final String id) {
-        realm.executeTransactionAsync(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                realm.where(User.class).equalTo("id", id).findAll().deleteAllFromRealm();
-            }
-        });
-    }
-
-    public void deleteUsersByName(final String badName) {
-        realm.executeTransactionAsync(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                realm.where(User.class)
-                        .like("name", badName)
-                        .or()
-                        .like("lastName", badName)
-                        .findAll()
-                        .deleteAllFromRealm();
-            }
-        });
-    }
-
 }

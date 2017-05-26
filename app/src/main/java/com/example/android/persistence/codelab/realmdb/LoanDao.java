@@ -17,10 +17,13 @@
 package com.example.android.persistence.codelab.realmdb;
 
 
+import com.example.android.persistence.codelab.realmdb.utils.LiveRealmData;
+
 import java.util.Date;
 
 import io.realm.Realm;
-import io.realm.RealmResults;
+
+import static com.example.android.persistence.codelab.realmdb.utils.RealmUtils.asLiveData;
 
 public class LoanDao  {
 
@@ -28,22 +31,28 @@ public class LoanDao  {
 
     public LoanDao(Realm realm) { this.mRealm = realm; }
 
-    public RealmResults<Loan> findLoansByNameAfter(String userName, Date after) {
-        return mRealm
-                .where(Loan.class)
-                .like("user.name", userName)
-                .greaterThan("endTime", after)
-                .findAllAsync();
-    }
-
-    public RealmResults<Loan> findAllLoans() {
-        return mRealm.where(Loan.class).findAllAsync();
-    }
-
     public void addLoan(final Date from, final Date to, final String userId, final String bookId) {
         User user = mRealm.where(User.class).equalTo("id", userId).findFirst();
         Book book = mRealm.where(Book.class).equalTo("id", bookId).findFirst();
         Loan loan = new Loan(from, to, book, user);
-        mRealm.copyToRealm(loan);
+        mRealm.insert(loan);
     }
+
+    public LiveRealmData<Loan> findLoansByNameAfter(final String userName, final Date after) {
+        return asLiveData(mRealm.where(Loan.class)
+                .like("user.name", userName)
+                .greaterThan("endTime", after)
+                .findAllAsync());
+    }
+
+
+    /**
+     *  Additional example custom finder methods.  Unused by the app currently.
+     */
+
+    public LiveRealmData<Loan> findAllLoans() {
+        return asLiveData(mRealm.where(Loan.class).findAllAsync());
+    }
+
 }
+

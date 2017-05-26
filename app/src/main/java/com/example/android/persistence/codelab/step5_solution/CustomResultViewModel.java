@@ -16,45 +16,34 @@
 
 package com.example.android.persistence.codelab.step5_solution;
 
-import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
+import android.arch.core.util.Function;
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.OnLifecycleEvent;
+import android.arch.lifecycle.Transformations;
+import android.arch.lifecycle.ViewModel;
 
 import com.example.android.persistence.codelab.realmdb.Loan;
 import com.example.android.persistence.codelab.realmdb.utils.DatabaseInitializer;
+import com.example.android.persistence.codelab.realmdb.utils.LiveRealmData;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import io.realm.OrderedCollectionChangeSet;
-import io.realm.OrderedRealmCollectionChangeListener;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
 import static com.example.android.persistence.codelab.realmdb.utils.RealmUtils.loanModel;
 
 
-public class CustomResultViewModel extends AndroidViewModel {
-
-    private MutableLiveData<String> mLoansResult;
-    private RealmResults<Loan> mLoansModel;
+public class CustomResultViewModel extends ViewModel {
 
     private Realm mDb;
+    private LiveData<String> mLoansResult;
 
-    public CustomResultViewModel(Application application) {
-        super(application);
-
+    public CustomResultViewModel() {
         mDb = Realm.getDefaultInstance();
-        mLoansResult = new MutableLiveData<>();
-        mLoansModel = loanModel(mDb).findLoansByNameAfter("Mike", getYesterdayDate());
-        subscribeToDbChanges();
-
+        subscribeToMikesLoansSinceYesterday();
         simulateDataUpdates();
     }
 
@@ -66,11 +55,12 @@ public class CustomResultViewModel extends AndroidViewModel {
         return mLoansResult;
     }
 
-    private void subscribeToDbChanges() {
-
-        mLoansModel.addChangeListener(new OrderedRealmCollectionChangeListener<RealmResults<Loan>>() {
+    private void subscribeToMikesLoansSinceYesterday() {
+        LiveRealmData<Loan> loans = loanModel(mDb)
+                .findLoansByNameAfter("Mike", getYesterdayDate());
+        mLoansResult = Transformations.map(loans, new Function<RealmResults<Loan>, String>() {
             @Override
-            public void onChange(RealmResults<Loan> loans, OrderedCollectionChangeSet orderedCollectionChangeSet) {
+            public String apply(RealmResults<Loan> loans) {
                 StringBuilder sb = new StringBuilder();
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm",
                         Locale.US);
@@ -80,7 +70,7 @@ public class CustomResultViewModel extends AndroidViewModel {
                             loan.getBook().getTitle(),
                             simpleDateFormat.format(loan.getEndTime())));
                 }
-                mLoansResult.setValue(sb.toString());
+                return sb.toString();
             }
         });
     }
@@ -93,7 +83,6 @@ public class CustomResultViewModel extends AndroidViewModel {
      */
     @Override
     protected void onCleared() {
-        mLoansModel.removeAllChangeListeners();
         mDb.close();
         super.onCleared();
     }

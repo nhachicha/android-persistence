@@ -25,17 +25,31 @@ import io.realm.RealmResults;
 
 import static com.example.android.persistence.codelab.realmdb.utils.RealmUtils.asLiveData;
 
+public class BookDao {
 
-public class BookDao extends RealmDao {
+    private Realm realm;
 
-    public BookDao(Realm realm) { super(realm); }
+    public BookDao(Realm realm) {
+        this.realm = realm;
+    }
 
+    public Book createOrUpdate(Book book) {
+        if (book != null) {
+            book = realm.copyToRealmOrUpdate(book);
+        }
+        return book;
+    }
+
+
+
+    /**
+     *  Additional example custom finder methods.  Unused by the app currently.
+     */
     public Book loadBookById(String id) {
         return realm.where(Book.class).equalTo("id", id).findFirst();
     }
 
     public LiveData<RealmResults<Book>> findBooksBorrowedByName(String userName) {
-
         return asLiveData(realm
                 .where(Book.class)
                 .like("loan.user.name", userName)
@@ -67,13 +81,6 @@ public class BookDao extends RealmDao {
 
     public LiveData<RealmResults<Book>> findAllBooks() {
         return asLiveData(realm.where(Book.class).findAll());
-    }
-
-    public Book createOrUpdate(Book book) {
-        if (book != null) {
-            book = realm.copyToRealmOrUpdate(book);
-        }
-        return book;
     }
 
 }
