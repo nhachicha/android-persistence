@@ -67,8 +67,8 @@ public class CustomResultViewModel extends ViewModel {
 
                 for (Loan loan : loans) {
                     sb.append(String.format("%s\n  (Returned: %s)\n",
-                            loan.getBook().getTitle(),
-                            simpleDateFormat.format(loan.getEndTime())));
+                            loan.book.title,
+                            simpleDateFormat.format(loan.endTime)));
                 }
                 return sb.toString();
             }

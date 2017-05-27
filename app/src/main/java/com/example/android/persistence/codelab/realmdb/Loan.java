@@ -24,10 +24,10 @@ import io.realm.annotations.RealmClass;
 @RealmClass
 public class Loan implements RealmModel {
 
-    private Date startTime;
-    private Date endTime;
-    private Book book;
-    private User user;
+    public Date startTime;
+    public Date endTime;
+    public Book book;
+    public User user;
 
     public Loan() {}
 
@@ -38,37 +38,4 @@ public class Loan implements RealmModel {
         this.user = user;
     }
 
-    // getter / setter
-
-    public Date getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(Date startTime) {
-        this.startTime = startTime;
-    }
-
-    public Date getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(Date endTime) {
-        this.endTime = endTime;
-    }
-
-    public Book getBook() {
-        return book;
-    }
-
-    public void setBook(Book book) {
-        this.book = book;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
 }

@@ -25,9 +25,9 @@ import io.realm.annotations.RealmClass;
 @RealmClass
 public class Book implements RealmModel {
 
-    private @PrimaryKey
-    String id;
-    private String title;
+    @PrimaryKey
+    public String id;
+    public String title;
     private RealmList<Loan> loans;
 
     public Book() {}
@@ -37,27 +37,7 @@ public class Book implements RealmModel {
         this.title = title;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public RealmList<Loan> getLoans() {
         return loans;
-    }
-
-    public void setLoans(RealmList<Loan> loans) {
-        this.loans = loans;
     }
 }

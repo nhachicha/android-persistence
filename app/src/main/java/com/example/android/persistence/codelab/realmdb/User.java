@@ -24,11 +24,11 @@ import io.realm.annotations.RealmClass;
 @RealmClass
 public class User implements RealmModel {
 
-    private @PrimaryKey
-    String id;
-    private String name;
-    private String lastName;
-    private int age;
+    @PrimaryKey
+    public String id;
+    public String name;
+    public String lastName;
+    public int age;
     private RealmList<Loan> loans;
 
     public User() {}
@@ -40,43 +40,8 @@ public class User implements RealmModel {
         this.age = age;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
     public RealmList<Loan> getLoans() {
         return loans;
     }
 
-    public void setLoans(RealmList<Loan> loans) {
-        this.loans = loans;
-    }
 }

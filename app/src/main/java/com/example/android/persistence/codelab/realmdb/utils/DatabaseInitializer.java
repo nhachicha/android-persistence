@@ -43,7 +43,7 @@ public class DatabaseInitializer {
 
     private static void addLoan(final Realm db,
                                 final User user, final Book book, Date from, Date to) {
-        loanModel(db).addLoan(from, to, user.getId(), book.getId());
+        loanModel(db).addLoan(from, to, user.id, book.id);
         checkpoint(db);
     }
 
