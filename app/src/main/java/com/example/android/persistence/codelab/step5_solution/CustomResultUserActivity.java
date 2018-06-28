@@ -16,18 +16,18 @@
 
 package com.example.android.persistence.codelab.step5_solution;
 
-import android.arch.lifecycle.LifecycleActivity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
 import com.example.android.codelabs.persistence.R;
 
 
-public class CustomResultUserActivity extends LifecycleActivity {
+public class CustomResultUserActivity extends AppCompatActivity {
 
     private CustomResultViewModel mShowUserViewModel;
     private TextView mBooksTextView;
@@ -36,7 +36,7 @@ public class CustomResultUserActivity extends LifecycleActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.db_activity);
-        mBooksTextView = (TextView) findViewById(R.id.books_tv);
+        mBooksTextView = findViewById(R.id.books_tv);
 
         // Android will instantiate my ViewModel for me, and the best part is
         // the viewModel will survive configurationChanges!

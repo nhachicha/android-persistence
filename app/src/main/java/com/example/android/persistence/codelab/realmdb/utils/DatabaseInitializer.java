@@ -36,7 +36,6 @@ public class DatabaseInitializer {
     private static final int DELAY_MILLIS = 500;
 
     public static void populateAsync(final Realm db) {
-
         Realm.Transaction task = populateWithTestDataTx;
         db.executeTransactionAsync(task);
     }
