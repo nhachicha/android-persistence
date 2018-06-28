@@ -14,41 +14,34 @@
  * limitations under the License.
  */
 
-package com.example.android.persistence.codelab.step5_solution;
+package com.example.android.persistence.codelab;
 
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.TextView;
 
 import com.example.android.codelabs.persistence.R;
+import com.example.android.codelabs.persistence.databinding.DbActivityBinding;
 
 
 public class CustomResultUserActivity extends AppCompatActivity {
 
     private CustomResultViewModel mShowUserViewModel;
-    private TextView mBooksTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.db_activity);
-        mBooksTextView = findViewById(R.id.books_tv);
+
+        DbActivityBinding viewDataBinding = DataBindingUtil.setContentView(this, R.layout.db_activity);
+        viewDataBinding.setLifecycleOwner(this);
 
         // Android will instantiate my ViewModel for me, and the best part is
         // the viewModel will survive configurationChanges!
         mShowUserViewModel = ViewModelProviders.of(this).get(CustomResultViewModel.class);
 
-        // We'll observe updates to our LiveData loan string.
-        mShowUserViewModel.getLoansResult().observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable final String result) {
-                mBooksTextView.setText(result);
-            }
-        });
+        viewDataBinding.setViewmodel(mShowUserViewModel);
     }
 
     public void onRefreshBtClicked(View view) {

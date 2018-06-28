@@ -35,6 +35,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    dataBinding {
+        enabled = true
+    }
     productFlavors {
     }
     // To avoid lint errors on generated sources, we temporarily disable abortOnError
@@ -44,8 +47,13 @@ android {
     }
 }
 
+realm {
+    syncEnabled = true
+}
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     androidTestImplementation('com.android.support.test.espresso:espresso-core:' + rootProject.espressoVersion, {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
@@ -54,5 +62,5 @@ dependencies {
     implementation 'android.arch.lifecycle:extensions:' + rootProject.archLifecycleVersion
     kapt 'android.arch.lifecycle:compiler:' + rootProject.archLifecycleVersion
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    kapt 'com.android.databinding:compiler:3.1.3'
 }
-

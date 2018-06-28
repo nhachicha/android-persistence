@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.persistence.codelab.step5_solution;
+package com.example.android.persistence.codelab;
 
 import android.arch.core.util.Function;
 import android.arch.lifecycle.LiveData;
